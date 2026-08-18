@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: corporate_portal
+      POSTGRES_USER: portal
+      POSTGRES_PASSWORD: portal
+    ports:
+      - "5432:5432"
+    volumes:
+      - portal_pg:/var/lib/postgresql/data
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corporate_portal
+      SPRING_DATASOURCE_USERNAME: portal
+      SPRING_DATASOURCE_PASSWORD: portal
+    ports:
+      - "8080:8080"
+    depends_on: [postgres]
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080/api
+    ports:
+      - "5173:80"
+    depends_on: [backend]
+volumes:
+  portal_pg:
